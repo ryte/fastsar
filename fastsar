@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -e
+
+CONF="$HOME/.aws/sts.json"
+HIST="$HOME/.aws/.sts_history"
+PROFILE="default"
+
+if [ -f "$HIST" ] && [ -s "$HIST" ] && [ -r "$HIST" ]; then
+  last_account=$(head -1 "$HIST")
+  last_role=$(tail -1 "$HIST")
+fi
+
+accounts=$(jq . < "$CONF")
+if echo "$accounts" | jq -e ".[1]" >/dev/null; then
+  _accounts=$(echo "$accounts" | jq -r ".[].name")
+  if echo "$_accounts" | grep -q "^$last_account$"; then
+    _accounts=$(echo "$_accounts" | jq -R . | jq -s . \
+      | jq -r "\"$last_account\", map(select(. != \"$last_account\"))[]")
+  fi
+  account_name=$(echo "$_accounts" | fzf --header="Account:")
+  account=$(echo "$accounts" | jq -r "map(select(.name == \"$account_name\"))[]")
+else
+  account=$(echo "$accounts" | jq -r ".[0]")
+fi
+account_id=$(echo "$account" | jq -r ".id")
+
+roles=$(echo "$account" | jq -r ".roles")
+if echo "$roles" | jq -e ".[1]" >/dev/null; then
+  _roles=$(echo "$roles" | jq -r ".[]")
+  if echo "$_roles" | grep -q "^$last_role$"; then
+    _roles=$(echo "$_roles" | jq -R . | jq -s . \
+      | jq -r "\"$last_role\", map(select(. != \"$last_role\"))[]")
+  fi
+  role=$(echo "$_roles" | fzf --header="Role:")
+else
+  role=$(echo "$roles" | jq -r ".[0]")
+fi
+
+credentials=$(aws sts assume-role \
+  --role-arn "arn:aws:iam::$account_id:role/$role" \
+  --role-session-name "TempSession1" \
+  --profile "$PROFILE"
+)
+
+AWS_ACCESS_KEY_ID=$(echo "$credentials" \
+  | jq -r ".Credentials.AccessKeyId")
+AWS_SECRET_ACCESS_KEY=$(echo "$credentials" \
+  | jq -r ".Credentials.SecretAccessKey")
+AWS_SESSION_TOKEN=$(echo "$credentials" \
+  | jq -r ".Credentials.SessionToken")
+
+printf "%s\n%s" "$account_name" "$role" > "$HIST"
+
+printf "\033[0;32mSession valid until %s\n" "$(echo "$credentials" \
+  | jq -r ".Credentials.Expiration")"
+
+export AWS_ACCESS_KEY_ID
+export AWS_SECRET_ACCESS_KEY
+export AWS_SESSION_TOKEN
