@@ -11,6 +11,22 @@ quickly using
 - Pre-selects last used account/role
 - Only requires user input if there are more than one accounts/roles
 
+## Usage
+Most shells do not allow to set environments from sub-shells,
+so this script returns a string that can be evaluated in the current shell.
+
+In bash this can be done with `eval $(fastsar)`,
+in fish this can be done with `eval (fastsar)`.
+
+You can also bind the evaluation to some hotkey, like 'Alt+s'
+
+- bash: `bind -x '"\es": eval $(fastsar)'`
+- fish: `bind \es 'eval (fastsar)'`
+
+
+If the script has problems detecting your shell, you can pass the shell's name
+as first parameter (e.g. `fastsar fish`).
+
 ## Config
 Create a json file with all your accounts and roles in the following format in
 `$HOME/.aws/sts.json` (configurable as `$CONF`)
