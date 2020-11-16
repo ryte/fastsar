@@ -27,6 +27,19 @@ You can also bind the evaluation to some hotkey, like 'Alt+s'
 If the script has problems detecting your shell, you can pass the shell's name
 as first parameter (e.g. `fastsar fish`).
 
+## How to install
+Locate your nearest `bin` folder, for example `~/.bin`, and edit the following few lines accordingly:
+
+```bash
+cd ~/projects/ryte  # This is where you normally pull your ryte tools to.
+git clone git@github.com:ryte/fastsar.git
+cd fastsar
+ln -s $(pwd)/fastsar ~/.bin/  # Edit this, please.
+chmod +x ~/.bin/fastsar
+```
+
+After this, you should be able to run `fastsar`.
+
 ## Config
 Create a json file with all your accounts and roles in the following format in
 `$HOME/.aws/sts.json` (configurable as `$CONF`)
