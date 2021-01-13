@@ -9,7 +9,7 @@ quickly using
 - Assume AWS role with minimum keystrokes
 - All AWS roles accessible in one place
 - Pre-selects last used account/role
-- Only requires user input if there are more than one accounts/roles
+- Only requires user input if there is more than one account/role
 
 ## Usage
 Most shells do not allow to set environments from sub-shells,

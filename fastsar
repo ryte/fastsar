@@ -71,5 +71,5 @@ esac
 printf "%s\n%s" "$account_name" "$role" > "$HIST"
 
 (>&2 echo -e "Using account $account_id ($account_name) with role $role")
-(>&2 echo -e "\033[0;32mSession valid until $(echo "$credentials" \
-  | jq -r ".Credentials.Expiration")")
+(>&2 echo -e "\e[0;32mSession valid until $(echo "$credentials" \
+  | jq -r ".Credentials.Expiration")\e[0m")
